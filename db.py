@@ -1,11 +1,10 @@
 import sqlite3
 
-class DB:
-    def __init__(self, filename: str):
-        self.filename = filename
+from config import SQLITE_FILENAME
 
+class DB:
     def initialize(self):
-        with sqlite3.connect(self.filename) as connection:
+        with sqlite3.connect(SQLITE_FILENAME) as connection:
             cursor = connection.cursor()
             with open('tables.sql', 'r') as file:
                 tables = file.read()
