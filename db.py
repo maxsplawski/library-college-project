@@ -1,15 +1,14 @@
 import sqlite3
 import time
+from sqlite3 import Connection, Cursor
+from typing import Tuple, List, Optional, Any
 
 from config import SQLITE_FILENAME, APP_NAME
 
-class DB:
-    _instance = None
 
-    def __new__(cls, *args, **kwargs):
-        if cls._instance is None:
-            cls._instance = super(DB, cls).__new__(cls, *args, **kwargs)
-        return cls._instance
+class DB:
+    connection: Connection = None
+    cursor: Cursor = None
 
     def initialize(self):
         try:
@@ -32,5 +31,30 @@ class DB:
             print(f"SQLite error: {sqlite_error}")
         except IOError as io_error:
             print(f"IO error: {io_error}")
+        except Exception as ex:
+            print(f"An unexpected error occured: {ex}")
+
+    def execute(
+            self,
+            query: str,
+            params: Optional[Tuple[Any, ...]] = None,
+            fetch: bool = False,
+            fetchall: bool = False
+    ) -> None|Tuple|List[Tuple]:
+        try:
+            with sqlite3.connect(SQLITE_FILENAME) as connection:
+                cursor = connection.cursor()
+                if params:
+                    cursor.execute(query, params)
+                else:
+                    cursor.execute(query)
+                connection.commit()
+                if fetch:
+                    return cursor.fetchone()
+                elif fetchall:
+                    return cursor.fetchall()
+
+        except sqlite3.Error as sqlite_error:
+            print(f"SQLite error: {sqlite_error}")
         except Exception as ex:
             print(f"An unexpected error occured: {ex}")
