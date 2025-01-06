@@ -1,23 +1,20 @@
-import time
-
 from cli import CLI
-from config import APP_NAME
-from controllers import Controller
+from controllers import BookController, AuthController
 from db import DB
 
 class App:
     def __init__(self):
         self.db = DB()
-        self.controller = Controller()
-        self.cli = CLI(self.controller)
+        self.auth_controller = AuthController()
+        self.book_controller = BookController()
+        self.cli = CLI(self.book_controller)
 
     def run(self):
-        start = time.time()
-        print(f"Starting {APP_NAME}...")
         self.db.initialize()
-        end = time.time()
-        print(f"Completed initialization in {end - start:.2f} seconds")
+
+        # Authenticate using AuthController
+        self.cli
 
         while True:
-            choice = self.cli.show_menu()
+            choice = self.cli.show_main_menu()
             self.cli.route_command(choice)

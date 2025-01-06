@@ -1,10 +1,11 @@
-class Controller:
+class AuthController:
     def login(self):
         return []
 
     def register(self):
         return []
 
+class BookController:
     def get_books(self):
         return []
 
