@@ -1,19 +1,18 @@
 import sys
 
 from config import APP_NAME
-from controllers import AuthController, BookController
+from services import AuthService, BookService
 from entities import Book
 
 
 class CLI:
-    def __init__(self, auth_controller: AuthController, book_controller: BookController):
-        self.auth_controller = auth_controller
-        self.book_controller = book_controller
+    def __init__(self, auth_service: AuthService, book_service: BookService):
+        self.auth_service = auth_service
+        self.book_service = book_service
 
     def show_auth_menu(self):
         print(f"Welcome back to {APP_NAME}!")
         print("1. Log in")
-
 
     def show_main_menu(self):
         print(f"\n--- {APP_NAME} ---")
@@ -29,13 +28,13 @@ class CLI:
     def route_command(self, choice: int):
         match choice:
             case "1":
-                books = self.book_controller.get_books()
+                books = self.book_service.get_books()
                 print("All books currently in the library:")
                 for book in books:
                     print(book)
             case "2":
                 isbn = input("Provide the book's ISBN: ")
-                book = self.book_controller.get_book(isbn)
+                book = self.book_service.get_book(isbn)
                 if book:
                     print(book)
                 else:
@@ -45,21 +44,21 @@ class CLI:
                 author = input("Author: ")
                 title = input("Title: ")
                 pages = int(input("Pages: "))
-                book = self.book_controller.add_book(Book(None, isbn, author, title, pages))
+                book = self.book_service.add_book(Book(None, isbn, author, title, pages))
                 print(f"Added {book}")
             case "4":
                 isbn = input("Provide the book's ISBN: ")
-                book_to_update = self.book_controller.get_book(isbn)
+                book_to_update = self.book_service.get_book(isbn)
                 if book_to_update is None:
                     print("No book found")
                 book_to_update.author = input("Author: ")
                 book_to_update.title = input("Title: ")
                 book_to_update.pages = int(input("Pages: "))
-                book = self.book_controller.update_book(book_to_update)
+                book = self.book_service.update_book(book_to_update)
                 print(f"Updated {book}")
             case "5":
                 isbn = input("Provide the book's ISBN: ")
-                self.book_controller.delete_book(isbn)
+                self.book_service.delete_book(isbn)
                 print(f"Deleted a book with ISBN: {isbn}")
             case "6":
                 print("Goodbye!")

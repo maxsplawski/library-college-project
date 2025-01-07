@@ -7,9 +7,6 @@ from config import SQLITE_FILENAME, APP_NAME
 
 
 class DB:
-    connection: Connection = None
-    cursor: Cursor = None
-
     def initialize(self):
         try:
             start = time.time()

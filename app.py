@@ -1,5 +1,5 @@
 from cli import CLI
-from controllers import BookController, AuthController
+from services import BookService, AuthService
 from db import DB
 from repositories import UserRepository, BookRepository
 
@@ -9,14 +9,14 @@ class App:
         self.db = DB()
         self.user_repository = UserRepository(self.db)
         self.book_repository = BookRepository(self.db)
-        self.auth_controller = AuthController(self.user_repository)
-        self.book_controller = BookController(self.book_repository)
-        self.cli = CLI(self.auth_controller, self.book_controller)
+        self.auth_service = AuthService(self.user_repository)
+        self.book_service = BookService(self.book_repository)
+        self.cli = CLI(self.auth_service, self.book_service)
 
     def run(self):
         self.db.initialize()
 
-        # Authenticate using AuthController
+        # Authenticate using AuthService
         # self.cli.show_auth_menu()
 
         while True:

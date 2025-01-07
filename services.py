@@ -4,7 +4,7 @@ from entities import Book
 from repositories import BookRepository, UserRepository
 
 
-class AuthController:
+class AuthService:
     def __init__(self, user_repository: UserRepository):
         self.user_repository = user_repository
 
@@ -14,7 +14,7 @@ class AuthController:
     def register(self):
         print("To be implemented")
 
-class BookController:
+class BookService:
     def __init__(self, book_repository: BookRepository):
         self.book_repository = book_repository
 
