@@ -1,3 +1,4 @@
+import hashlib
 from typing import Optional
 
 from entities import Book
@@ -8,8 +9,13 @@ class AuthService:
     def __init__(self, user_repository: UserRepository):
         self.user_repository = user_repository
 
-    def login(self):
-        print("To be implemented")
+    def login(self, email: str, password: str) -> bool:
+        user = self.user_repository.find_by_email(email)
+        if user:
+            hashed_password = hashlib.sha256(password.encode()).hexdigest()
+            return user.password == hashed_password
+        else:
+            return False
 
     def register(self):
         print("To be implemented")

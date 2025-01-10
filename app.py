@@ -15,10 +15,6 @@ class App:
 
     def run(self):
         self.db.initialize()
-
-        # Authenticate using AuthService
-        # self.cli.show_auth_menu()
-
-        while True:
-            choice = self.cli.show_main_menu()
-            self.cli.route_command(choice)
+        self.cli.show_auth_menu()
+        choice = self.cli.show_main_menu()
+        self.cli.route_command(choice)

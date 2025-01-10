@@ -1,15 +1,29 @@
+from typing import Union
+
+
 class User:
-    def __init__(self):
-        print("To be implemented")
+    id: Union[int, None]
+    name: str
+    email: str
+    password: str
+
+    def __init__(self, id: Union[int, None], name: str, email: str, password: str):
+        self.id = id
+        self.name = name
+        self.email = email
+        self.password = password
+
+    def __str__(self):
+        return f"Name: {self.name}, Email: {self.email}"
 
 class Book:
-    id: int|None
+    id: Union[int, None]
     isbn: str
     author: str
     title: str
     pages: int
 
-    def __init__(self, id: int|None, isbn: str, author: str, title: str, pages: int):
+    def __init__(self, id: Union[int, None], isbn: str, author: str, title: str, pages: int):
         self.id = id
         self.isbn = isbn
         self.author = author

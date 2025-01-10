@@ -1,15 +1,19 @@
 from typing import Optional
 
 from db import DB
-from entities import Book
+from entities import Book, User
 
 
 class UserRepository:
     def __init__(self, db: DB):
         self.db = db
 
-    def index(self):
-        print("To be implemented")
+    def find_by_email(self, email: str) -> Optional[User]:
+        row = self.db.execute("SELECT * FROM users WHERE email = ?", (email,), fetch=True)
+        if row is None:
+            return None
+        user = User(*row)
+        return user
 
 class BookRepository:
     def __init__(self, db: DB):

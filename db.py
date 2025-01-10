@@ -1,7 +1,7 @@
 import sqlite3
 import time
 from sqlite3 import Connection, Cursor
-from typing import Tuple, List, Optional, Any
+from typing import Tuple, List, Optional, Any, Union
 
 from config import SQLITE_FILENAME, APP_NAME
 
@@ -37,7 +37,7 @@ class DB:
             params: Optional[Tuple[Any, ...]] = None,
             fetch: bool = False,
             fetchall: bool = False
-    ) -> None|Tuple|List[Tuple]:
+    ) -> Union[None, Tuple, List[Tuple]]:
         try:
             with sqlite3.connect(SQLITE_FILENAME) as connection:
                 cursor = connection.cursor()
