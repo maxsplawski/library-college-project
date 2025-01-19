@@ -1,6 +1,5 @@
 import sqlite3
 import time
-from sqlite3 import Connection, Cursor
 from typing import Tuple, List, Optional, Any, Union
 
 from config import SQLITE_FILENAME, APP_NAME, INSERT_TESTDATA
