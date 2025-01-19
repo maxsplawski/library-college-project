@@ -1,9 +1,9 @@
 import getpass
 import sys
 
-from config import APP_NAME
-from services import AuthService, BookService
 from entities import Book
+from services import AuthService, BookService
+from settings import APP_NAME
 
 
 class CLI:
@@ -12,7 +12,7 @@ class CLI:
         self.book_service = book_service
 
     def show_auth_menu(self):
-        print(f"Welcome back to {APP_NAME}!")
+        print(f"Welcome back to Library!")
         while True:
             print("1. Login")
             print("2. Sign up")
@@ -106,4 +106,3 @@ class CLI:
             sys.exit(0)
         else:
             print("Invalid choice")
-

@@ -2,22 +2,25 @@ import sqlite3
 import time
 from typing import Tuple, List, Optional, Any, Union
 
-from config import SQLITE_FILENAME, APP_NAME, INSERT_TESTDATA
+from settings import DB_DIR, INSERT_TESTDATA, APP_NAME
 
 
 class DB:
+    def __init__(self, sqlite_database: str):
+        self.sqlite_database = sqlite_database
+
     def initialize(self):
         try:
             start = time.time()
             print(f"Starting {APP_NAME}...")
 
-            with sqlite3.connect(SQLITE_FILENAME) as connection:
+            with sqlite3.connect(self.sqlite_database) as connection:
                 cursor = connection.cursor()
-                with open('tables.sql', 'r') as file:
+                with open(f"{DB_DIR}/tables.sql", 'r') as file:
                     tables = file.read()
                     cursor.executescript(tables)
                 if INSERT_TESTDATA:
-                    with open('testdata.sql', 'r') as file:
+                    with open(f"{DB_DIR}/testdata.sql", 'r') as file:
                         statements = file.read()
                         cursor.executescript(statements)
 
@@ -29,7 +32,7 @@ class DB:
         except IOError as io_error:
             print(f"IO error: {io_error}")
         except Exception as ex:
-            print(f"An unexpected error occured: {ex}")
+            print(f"An unexpected error occurred: {ex}")
 
     def execute(
             self,
@@ -39,7 +42,7 @@ class DB:
             fetchall: bool = False
     ) -> Union[None, Tuple, List[Tuple]]:
         try:
-            with sqlite3.connect(SQLITE_FILENAME) as connection:
+            with sqlite3.connect(self.sqlite_database) as connection:
                 cursor = connection.cursor()
                 if params:
                     cursor.execute(query, params)
@@ -54,4 +57,4 @@ class DB:
         except sqlite3.Error as sqlite_error:
             print(f"SQLite error: {sqlite_error}")
         except Exception as ex:
-            print(f"An unexpected error occured: {ex}")
+            print(f"An unexpected error occurred: {ex}")

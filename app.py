@@ -1,12 +1,13 @@
 from cli import CLI
-from services import BookService, AuthService
 from db import DB
 from repositories import UserRepository, BookRepository
+from services import BookService, AuthService
+from settings import SQLITE_FILENAME
 
 
 class App:
     def __init__(self):
-        self.db = DB()
+        self.db = DB(SQLITE_FILENAME)
         self.user_repository = UserRepository(self.db)
         self.book_repository = BookRepository(self.db)
         self.auth_service = AuthService(self.user_repository)
