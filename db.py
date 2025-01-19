@@ -3,7 +3,7 @@ import time
 from sqlite3 import Connection, Cursor
 from typing import Tuple, List, Optional, Any, Union
 
-from config import SQLITE_FILENAME, APP_NAME
+from config import SQLITE_FILENAME, APP_NAME, INSERT_TESTDATA
 
 
 class DB:
@@ -17,9 +17,10 @@ class DB:
                 with open('tables.sql', 'r') as file:
                     tables = file.read()
                     cursor.executescript(tables)
-                with open('testdata.sql', 'r') as file:
-                    statements = file.read()
-                    cursor.executescript(statements)
+                if INSERT_TESTDATA:
+                    with open('testdata.sql', 'r') as file:
+                        statements = file.read()
+                        cursor.executescript(statements)
 
             end = time.time()
             print(f"Completed initialization in {end - start:.2f} seconds")

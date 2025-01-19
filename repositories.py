@@ -15,6 +15,10 @@ class UserRepository:
         user = User(*row)
         return user
 
+    def save(self, user: User):
+        self.db.execute("INSERT INTO users (name, email, password) VALUES (?, ?, ?)",
+                        (user.name, user.email, user.password))
+
 class BookRepository:
     def __init__(self, db: DB):
         self.db = db
@@ -41,7 +45,7 @@ class BookRepository:
 
     def update_by_isbn(self, isbn: str, book: Book):
         self.db.execute("UPDATE books SET author = ?, title = ?, pages = ? WHERE isbn = ?",
-                        (book.author, book.title, book.pages, book.isbn))
+                        (book.author, book.title, book.pages, isbn))
 
     def delete_by_isbn(self, isbn: str):
         self.db.execute("DELETE FROM books WHERE isbn = ?",(isbn,))

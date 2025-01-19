@@ -13,16 +13,47 @@ class CLI:
 
     def show_auth_menu(self):
         print(f"Welcome back to {APP_NAME}!")
-        print("Please log in to continue")
         while True:
+            print("1. Login")
+            print("2. Sign up")
+            auth_method = input("Enter your choice (1-2): ")
+            if auth_method == "1":
+                login_success = self.show_login()
+                if login_success:
+                    return
+            elif auth_method == "2":
+                self.show_sign_up()
+                return
+            else:
+                print("Invalid choice")
+
+    def show_login(self) -> bool:
+        while True:
+            print()
             email = input("Email: ")
             password = getpass.getpass("Password: ")
             success = self.auth_service.login(email, password)
             if success:
                 print("Logged in")
-                return
+                return True
             else:
                 print("Invalid credentials, please try again")
+                return False
+
+    def show_sign_up(self):
+        while True:
+            email = input("Email: ") # validate
+            user = self.auth_service.get_user(email)
+            password = getpass.getpass("Password: ")
+            password_confirmation = getpass.getpass("Confirm password: ")
+            if password == password_confirmation and user is None:
+                self.auth_service.register(email, password)
+                print("Registered")
+                return
+            elif user:
+                print("Email is taken")
+            else:
+                print("Passwords do not match")
 
     def show_main_menu(self) -> str:
         while True:
@@ -36,7 +67,7 @@ class CLI:
             choice = input("Enter your choice (1-6): ")
             return choice
 
-    def route_command(self, choice: int):
+    def route_command(self, choice: str):
         if choice == "1":
             books = self.book_service.get_books()
             print("All books currently in the library:")

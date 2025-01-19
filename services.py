@@ -1,7 +1,7 @@
 import hashlib
 from typing import Optional
 
-from entities import Book
+from entities import Book, User
 from repositories import BookRepository, UserRepository
 
 
@@ -17,8 +17,14 @@ class AuthService:
         else:
             return False
 
-    def register(self):
-        print("To be implemented")
+    def register(self, email: str, password: str):
+        name = email.split("@")[0]
+        hashed_password = hashlib.sha256(password.encode()).hexdigest()
+        user = User(None, name, email, hashed_password)
+        self.user_repository.save(user)
+
+    def get_user(self, email: str) -> Optional[User]:
+        return self.user_repository.find_by_email(email)
 
 class BookService:
     def __init__(self, book_repository: BookRepository):
