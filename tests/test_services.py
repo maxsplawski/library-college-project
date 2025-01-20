@@ -59,3 +59,15 @@ class TestServices(unittest.TestCase):
 
         self.mock_auth_service.get_user.assert_called_with("user@company.com")
         mock_print.assert_any_call("Email is taken")
+
+    @patch("builtins.input", side_effect=["user@example.com", "user@example.com"])
+    @patch("getpass.getpass", side_effect=["password", "pazzword", "password", "password"])
+    @patch("builtins.print")
+    def test_user_is_shown_error_message_on_password_mismatch(self, mock_print: MagicMock, mock_getpass: MagicMock, mock_input: MagicMock):
+        self.mock_auth_service.get_user.return_value = None
+        self.mock_auth_service.register.return_value = None
+
+        self.cli.show_sign_up()
+
+        self.mock_auth_service.get_user.assert_called_with("user@example.com")
+        mock_print.assert_any_call("Passwords do not match")
