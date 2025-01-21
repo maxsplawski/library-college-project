@@ -92,6 +92,7 @@ class CLI:
             book_to_update = self.book_service.get_book(isbn)
             if book_to_update is None:
                 print("No book found")
+                return
             book_to_update.author = input("Author: ")
             book_to_update.title = input("Title: ")
             book_to_update.pages = int(input("Pages: "))
