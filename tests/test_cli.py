@@ -86,3 +86,24 @@ class TestCLI(unittest.TestCase):
         mock_print.assert_any_call("All books currently in the library:")
         for book in books:
             mock_print.assert_any_call(book)
+
+    @patch("builtins.input", return_value="1234")
+    @patch("builtins.print")
+    def test_user_can_get_book(self, mock_print: MagicMock, mock_input: MagicMock):
+        book = Book(1, "1234", "Author 1", "Title 1", 10)
+        self.mock_book_service.get_book.return_value = book
+
+        self.cli.route_command("2")
+
+        self.mock_book_service.get_book.assert_called_with("1234")
+        mock_print.assert_any_call(book)
+
+    @patch("builtins.input", return_value="1234")
+    @patch("builtins.print")
+    def test_user_is_shown_error_message_on_book_not_found(self, mock_print: MagicMock, mock_input: MagicMock):
+        self.mock_book_service.get_book.return_value = None
+
+        self.cli.route_command("2")
+
+        self.mock_book_service.get_book.assert_called_with("1234")
+        mock_print.assert_any_call("No book found")
