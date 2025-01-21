@@ -2,10 +2,10 @@ import unittest
 from unittest.mock import Mock, patch, MagicMock
 
 from cli import CLI
-from entities import User
+from entities import Book
 
 
-class TestServices(unittest.TestCase):
+class TestCLI(unittest.TestCase):
     def setUp(self):
         self.mock_auth_service = Mock()
         self.mock_book_service = Mock()
@@ -71,3 +71,18 @@ class TestServices(unittest.TestCase):
 
         self.mock_auth_service.get_user.assert_called_with("user@example.com")
         mock_print.assert_any_call("Passwords do not match")
+
+    @patch("builtins.print")
+    def test_user_can_get_books(self, mock_print: MagicMock):
+        books = [
+            Book(1, "1234", "Author 1", "Title 1", 10),
+            Book(2, "2345", "Author 2", "Title 2", 20)
+        ]
+        self.mock_book_service.get_books.return_value = books
+
+        self.cli.route_command("1")
+
+        self.mock_book_service.get_books.assert_called_once()
+        mock_print.assert_any_call("All books currently in the library:")
+        for book in books:
+            mock_print.assert_any_call(book)
