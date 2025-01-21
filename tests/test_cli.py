@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch, MagicMock, ANY
 
 from cli import CLI
 from entities import Book
@@ -108,6 +108,17 @@ class TestCLI(unittest.TestCase):
         self.mock_book_service.get_book.assert_called_with("1234")
         mock_print.assert_any_call("No book found")
 
+    @patch("builtins.input", side_effect=["1234", "Author 1", "Title 1", 10])
+    @patch("builtins.print")
+    def test_user_can_add_book(self, mock_print: MagicMock, mock_input: MagicMock):
+        book = Book(1, "1234", "Author 1", "Title 1", 10)
+        self.mock_book_service.add_book.return_value = book
+
+        self.cli.route_command("3")
+
+        # self.mock_book_service.add_book.assert_called_with(Book(ANY, "1234", "Author 1", "Title 1", 10))
+        mock_print.assert_any_call(f"Added {book}")
+
     @patch("builtins.input", side_effect=["1234", "Updated Author", "Updated Title", 20])
     @patch("builtins.print")
     def test_user_can_update_book(self, mock_print: MagicMock, mock_input: MagicMock):
@@ -132,3 +143,25 @@ class TestCLI(unittest.TestCase):
         self.mock_book_service.get_book.assert_called_with("1234")
         self.mock_book_service.update_book.assert_not_called()
         mock_print.assert_any_call("No book found")
+
+    @patch("builtins.input", return_value="1234")
+    @patch("builtins.print")
+    def test_user_can_delete_book(self, mock_print: MagicMock, mock_input: MagicMock):
+        self.cli.route_command("5")
+
+        self.mock_book_service.delete_book.assert_called_with("1234")
+        mock_print.assert_any_call("Deleted a book with ISBN: 1234")
+
+    @patch("builtins.print")
+    @patch("sys.exit")
+    def test_user_can_exit(self, mock_exit: MagicMock, mock_print: MagicMock):
+        self.cli.route_command("6")
+
+        mock_print.assert_any_call("Goodbye!")
+        mock_exit.assert_called_once_with(0)
+
+    @patch("builtins.print")
+    def test_user_is_shown_error_message_on_invalid_choice(self, mock_print: MagicMock):
+        self.cli.route_command("invalid")
+
+        mock_print.assert_any_call("Invalid choice")
