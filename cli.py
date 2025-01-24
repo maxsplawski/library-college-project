@@ -12,7 +12,7 @@ class CLI:
         self.book_service = book_service
 
     def show_auth_menu(self):
-        print(f"Welcome back to Library!")
+        print(f"Welcome back to {APP_NAME}!")
         while True:
             print("1. Login")
             print("2. Sign up")
@@ -29,7 +29,6 @@ class CLI:
 
     def show_login(self) -> bool:
         while True:
-            print()
             email = input("Email: ")
             password = getpass.getpass("Password: ")
             success = self.auth_service.login(email, password)
@@ -100,6 +99,10 @@ class CLI:
             print(f"Updated {book}")
         elif choice == "5":
             isbn = input("Provide the book's ISBN: ")
+            book_to_delete = self.book_service.get_book(isbn)
+            if book_to_delete is None:
+                print("No book found")
+                return
             self.book_service.delete_book(isbn)
             print(f"Deleted a book with ISBN: {isbn}")
         elif choice == "6":

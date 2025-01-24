@@ -11,7 +11,7 @@ class TestCLI(unittest.TestCase):
         self.mock_book_service = Mock()
         self.cli = CLI(self.mock_auth_service, self.mock_book_service)
 
-    @patch("builtins.input", side_effect=["user@example.com"])
+    @patch("builtins.input", return_value="user@example.com")
     @patch("getpass.getpass", return_value="password")
     @patch("builtins.print")
     def test_user_can_login(self, mock_print: MagicMock, mock_getpass: MagicMock, mock_input: MagicMock):
@@ -23,7 +23,7 @@ class TestCLI(unittest.TestCase):
         self.mock_auth_service.login.assert_called_once_with("user@example.com", "password")
         mock_print.assert_any_call("Logged in")
 
-    @patch("builtins.input", side_effect=["user@example.com", "password"])
+    @patch("builtins.input", return_value="user@example.com")
     @patch("getpass.getpass", return_value="password")
     @patch("builtins.print")
     def test_user_is_shown_error_message_on_login_failure(self,  mock_print: MagicMock, mock_getpass: MagicMock, mock_input: MagicMock):
@@ -35,7 +35,7 @@ class TestCLI(unittest.TestCase):
         self.mock_auth_service.login.assert_called_once_with("user@example.com", "password")
         mock_print.assert_any_call("Invalid credentials, please try again")
 
-    @patch("builtins.input", side_effect=["user@example.com", "password"])
+    @patch("builtins.input", return_value="user@example.com")
     @patch("getpass.getpass", return_value="password")
     @patch("builtins.print")
     def test_user_can_sign_up(self,  mock_print: MagicMock, mock_getpass: MagicMock, mock_input: MagicMock):
@@ -151,6 +151,17 @@ class TestCLI(unittest.TestCase):
 
         self.mock_book_service.delete_book.assert_called_with("1234")
         mock_print.assert_any_call("Deleted a book with ISBN: 1234")
+
+    @patch("builtins.input", return_value="1234")
+    @patch("builtins.print")
+    def test_user_is_shown_error_message_when_book_not_found_on_book_delete_attempt(self, mock_print: MagicMock, mock_input: MagicMock):
+        self.mock_book_service.get_book.return_value = None
+
+        self.cli.route_command("5")
+
+        self.mock_book_service.get_book.assert_called_with("1234")
+        self.mock_book_service.delete_book.assert_not_called()
+        mock_print.assert_any_call("No book found")
 
     @patch("builtins.print")
     @patch("sys.exit")
