@@ -55,16 +55,14 @@ class CLI:
                 print("Passwords do not match")
 
     def show_main_menu(self) -> str:
-        while True:
-            print(f"\n--- {APP_NAME} ---")
-            print("1. Show all books")
-            print("2. Show a book")
-            print("3. Add a book")
-            print("4. Update a book")
-            print("5. Delete a book")
-            print("6. Exit")
-            choice = input("Enter your choice (1-6): ")
-            return choice
+        print("1. Show all books")
+        print("2. Show a book")
+        print("3. Add a book")
+        print("4. Update a book")
+        print("5. Delete a book")
+        print("6. Exit")
+        choice = input("Enter your choice (1-6): ")
+        return choice
 
     def route_command(self, choice: str):
         if choice == "1":

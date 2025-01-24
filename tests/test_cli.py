@@ -176,3 +176,6 @@ class TestCLI(unittest.TestCase):
         self.cli.route_command("invalid")
 
         mock_print.assert_any_call("Invalid choice")
+
+if __name__ == "__main__":
+    unittest.main()

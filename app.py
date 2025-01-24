@@ -2,7 +2,7 @@ from cli import CLI
 from db import DB
 from repositories import UserRepository, BookRepository
 from services import BookService, AuthService
-from settings import SQLITE_FILENAME
+from settings import SQLITE_FILENAME, APP_NAME
 
 
 class App:
@@ -17,5 +17,7 @@ class App:
     def run(self):
         self.db.initialize()
         self.cli.show_auth_menu()
-        choice = self.cli.show_main_menu()
-        self.cli.route_command(choice)
+        print(f"\n--- {APP_NAME} ---")
+        while True:
+            choice = self.cli.show_main_menu()
+            self.cli.route_command(choice)
