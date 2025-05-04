@@ -3,7 +3,6 @@ import sys
 
 from entities import Book
 from services import AuthService, BookService
-from settings import APP_NAME
 
 
 class CLI:
