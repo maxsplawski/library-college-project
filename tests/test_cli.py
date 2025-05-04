@@ -17,7 +17,7 @@ class TestCLI(unittest.TestCase):
     def test_user_can_login(self, mock_print: MagicMock, mock_getpass: MagicMock, mock_input: MagicMock):
         self.mock_auth_service.login.return_value = True
 
-        result = self.cli.show_login()
+        result = self.cli.attempt_login()
 
         self.assertTrue(result)
         self.mock_auth_service.login.assert_called_once_with("user@example.com", "password")
@@ -29,7 +29,7 @@ class TestCLI(unittest.TestCase):
     def test_user_is_shown_error_message_on_login_failure(self,  mock_print: MagicMock, mock_getpass: MagicMock, mock_input: MagicMock):
         self.mock_auth_service.login.return_value = False
 
-        result = self.cli.show_login()
+        result = self.cli.attempt_login()
 
         self.assertFalse(result)
         self.mock_auth_service.login.assert_called_once_with("user@example.com", "password")
@@ -42,7 +42,7 @@ class TestCLI(unittest.TestCase):
         self.mock_auth_service.get_user.return_value = None
         self.mock_auth_service.register.return_value = None
 
-        self.cli.show_sign_up()
+        self.cli.attempt_sign_up()
 
         self.mock_auth_service.get_user.assert_called_with("user@example.com")
         self.mock_auth_service.register.assert_called_with("user@example.com", "password")
@@ -55,7 +55,7 @@ class TestCLI(unittest.TestCase):
         self.mock_auth_service.get_user.side_effect = lambda email: MagicMock() if email == "user@example.com" else None
         self.mock_auth_service.register.return_value = None
 
-        self.cli.show_sign_up()
+        self.cli.attempt_sign_up()
 
         self.mock_auth_service.get_user.assert_called_with("user@company.com")
         mock_print.assert_any_call("Email is taken")
@@ -67,7 +67,7 @@ class TestCLI(unittest.TestCase):
         self.mock_auth_service.get_user.return_value = None
         self.mock_auth_service.register.return_value = None
 
-        self.cli.show_sign_up()
+        self.cli.attempt_sign_up()
 
         self.mock_auth_service.get_user.assert_called_with("user@example.com")
         mock_print.assert_any_call("Passwords do not match")

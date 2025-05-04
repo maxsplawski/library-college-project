@@ -1,3 +1,5 @@
+import sqlite3
+
 from cli import CLI
 from db import DB
 from repositories import UserRepository, BookRepository
@@ -15,9 +17,19 @@ class App:
         self.cli = CLI(self.auth_service, self.book_service)
 
     def run(self):
-        self.db.initialize()
-        self.cli.show_auth_menu()
-        print(f"\n--- {APP_NAME} ---")
-        while True:
-            choice = self.cli.show_main_menu()
-            self.cli.route_command(choice)
+        try:
+            self.db.initialize()
+            print(f"Welcome back to {APP_NAME}!")
+            authenticated = False
+            while not authenticated:
+                authenticated = self.cli.authenticate()
+            while True:
+                print(f"\n--- {APP_NAME} ---")
+                choice = self.cli.get_choice()
+                self.cli.route_command(choice)
+        except sqlite3.Error as sqlite_error:
+            print(f"SQLite error: {sqlite_error}")
+        except IOError as io_error:
+            print(f"IO error: {io_error}")
+        except Exception as ex:
+            print(f"An unexpected error occurred: {ex}")
