@@ -4,6 +4,7 @@ import sys
 from domain.domains import AuthDomain, BookDomain
 from domain.entities import Book
 from domain.view import View
+from settings import EXPORT_DESTINATION
 
 
 class CommandLineInterfaceView(View):
@@ -56,8 +57,9 @@ class CommandLineInterfaceView(View):
         print("3. Add a book")
         print("4. Update a book")
         print("5. Delete a book")
-        print("6. Exit")
-        choice = input("Enter your choice (1-6): ")
+        print("6. Export all books")
+        print("7. Exit")
+        choice = input("Enter your choice (1-7): ")
         return choice
 
     def route_command(self, command: str) -> None:
@@ -100,6 +102,8 @@ class CommandLineInterfaceView(View):
             self.book_domain.delete_book(isbn)
             print(f"Deleted a book with ISBN: {isbn}")
         elif command == "6":
+            self.book_domain.export_books(EXPORT_DESTINATION)
+        elif command == "7":
             print("Goodbye!")
             sys.exit(0)
         else:

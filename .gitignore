@@ -171,4 +171,5 @@ cython_debug/
 .pypirc
 
 # Custom
-*.db
+db/*.db
+exports/*

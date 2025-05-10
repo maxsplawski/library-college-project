@@ -2,14 +2,15 @@ import unittest
 from unittest.mock import Mock, patch, MagicMock
 
 from domain.entities import Book
-from infrastracture.view import CommandLineInterfaceView
+from infrastructure.view import CommandLineInterfaceView
+from settings import EXPORT_DESTINATION
 
 
-class TestCLI(unittest.TestCase):
+class TestCommandLineInterfaceView(unittest.TestCase):
     def setUp(self):
         self.mock_auth_service = Mock()
         self.mock_book_service = Mock()
-        self.cli = CommandLineInterfaceView(self.mock_auth_service, self.mock_book_service)
+        self.cli_view = CommandLineInterfaceView(self.mock_auth_service, self.mock_book_service)
 
     @patch("builtins.input", return_value="user@example.com")
     @patch("getpass.getpass", return_value="password")
@@ -17,7 +18,7 @@ class TestCLI(unittest.TestCase):
     def test_user_can_login(self, mock_print: MagicMock, mock_getpass: MagicMock, mock_input: MagicMock):
         self.mock_auth_service.login.return_value = True
 
-        result = self.cli.attempt_login()
+        result = self.cli_view.attempt_login()
 
         self.assertTrue(result)
         self.mock_auth_service.login.assert_called_once_with("user@example.com", "password")
@@ -30,7 +31,7 @@ class TestCLI(unittest.TestCase):
                                                           mock_input: MagicMock):
         self.mock_auth_service.login.return_value = False
 
-        result = self.cli.attempt_login()
+        result = self.cli_view.attempt_login()
 
         self.assertFalse(result)
         self.mock_auth_service.login.assert_called_once_with("user@example.com", "password")
@@ -43,7 +44,7 @@ class TestCLI(unittest.TestCase):
         self.mock_auth_service.get_user.return_value = None
         self.mock_auth_service.register.return_value = None
 
-        self.cli.attempt_registration()
+        self.cli_view.attempt_registration()
 
         self.mock_auth_service.get_user.assert_called_with("user@example.com")
         self.mock_auth_service.register.assert_called_with("user@example.com", "password")
@@ -57,7 +58,7 @@ class TestCLI(unittest.TestCase):
         self.mock_auth_service.get_user.side_effect = lambda email: MagicMock() if email == "user@example.com" else None
         self.mock_auth_service.register.return_value = None
 
-        self.cli.attempt_registration()
+        self.cli_view.attempt_registration()
 
         self.mock_auth_service.get_user.assert_called_with("user@company.com")
         mock_print.assert_any_call("Email is taken")
@@ -70,7 +71,7 @@ class TestCLI(unittest.TestCase):
         self.mock_auth_service.get_user.return_value = None
         self.mock_auth_service.register.return_value = None
 
-        self.cli.attempt_registration()
+        self.cli_view.attempt_registration()
 
         self.mock_auth_service.get_user.assert_called_with("user@example.com")
         mock_print.assert_any_call("Passwords do not match")
@@ -83,7 +84,7 @@ class TestCLI(unittest.TestCase):
         ]
         self.mock_book_service.get_books.return_value = books
 
-        self.cli.route_command("1")
+        self.cli_view.route_command("1")
 
         self.mock_book_service.get_books.assert_called_once()
         mock_print.assert_any_call("All books currently in the library:")
@@ -96,7 +97,7 @@ class TestCLI(unittest.TestCase):
         book = Book(1, "1234", "Author 1", "Title 1", 10)
         self.mock_book_service.get_book.return_value = book
 
-        self.cli.route_command("2")
+        self.cli_view.route_command("2")
 
         self.mock_book_service.get_book.assert_called_with("1234")
         mock_print.assert_any_call(book)
@@ -107,7 +108,7 @@ class TestCLI(unittest.TestCase):
                                                                                  mock_input: MagicMock):
         self.mock_book_service.get_book.return_value = None
 
-        self.cli.route_command("2")
+        self.cli_view.route_command("2")
 
         self.mock_book_service.get_book.assert_called_with("1234")
         mock_print.assert_any_call("No book found")
@@ -118,7 +119,7 @@ class TestCLI(unittest.TestCase):
         book = Book(1, "1234", "Author 1", "Title 1", 10)
         self.mock_book_service.add_book.return_value = book
 
-        self.cli.route_command("3")
+        self.cli_view.route_command("3")
 
         # self.mock_book_service.add_book.assert_called_with(Book(ANY, "1234", "Author 1", "Title 1", 10))
         mock_print.assert_any_call(f"Added {book}")
@@ -131,7 +132,7 @@ class TestCLI(unittest.TestCase):
         self.mock_book_service.get_book.return_value = book
         self.mock_book_service.update_book.return_value = updated_book
 
-        self.cli.route_command("4")
+        self.cli_view.route_command("4")
 
         self.mock_book_service.get_book.assert_called_with("1234")
         self.mock_book_service.update_book.assert_called_with(book)
@@ -143,7 +144,7 @@ class TestCLI(unittest.TestCase):
                                                                                     mock_input: MagicMock):
         self.mock_book_service.get_book.return_value = None
 
-        self.cli.route_command("4")
+        self.cli_view.route_command("4")
 
         self.mock_book_service.get_book.assert_called_with("1234")
         self.mock_book_service.update_book.assert_not_called()
@@ -152,7 +153,7 @@ class TestCLI(unittest.TestCase):
     @patch("builtins.input", return_value="1234")
     @patch("builtins.print")
     def test_user_can_delete_book(self, mock_print: MagicMock, mock_input: MagicMock):
-        self.cli.route_command("5")
+        self.cli_view.route_command("5")
 
         self.mock_book_service.delete_book.assert_called_with("1234")
         mock_print.assert_any_call("Deleted a book with ISBN: 1234")
@@ -163,23 +164,31 @@ class TestCLI(unittest.TestCase):
                                                                                     mock_input: MagicMock):
         self.mock_book_service.get_book.return_value = None
 
-        self.cli.route_command("5")
+        self.cli_view.route_command("5")
 
         self.mock_book_service.get_book.assert_called_with("1234")
         self.mock_book_service.delete_book.assert_not_called()
         mock_print.assert_any_call("No book found")
 
     @patch("builtins.print")
+    def test_user_can_export_books(self, mock_print: MagicMock):
+        self.mock_book_service.export_books.return_value = None
+
+        self.cli_view.route_command("6")
+
+        self.mock_book_service.export_books.assert_called_with(EXPORT_DESTINATION)
+
+    @patch("builtins.print")
     @patch("sys.exit")
     def test_user_can_exit(self, mock_exit: MagicMock, mock_print: MagicMock):
-        self.cli.route_command("6")
+        self.cli_view.route_command("7")
 
         mock_print.assert_any_call("Goodbye!")
         mock_exit.assert_called_once_with(0)
 
     @patch("builtins.print")
     def test_user_is_shown_error_message_on_invalid_choice(self, mock_print: MagicMock):
-        self.cli.route_command("invalid")
+        self.cli_view.route_command("invalid")
 
         mock_print.assert_any_call("Invalid choice")
 

@@ -2,6 +2,7 @@ import hashlib
 from typing import Optional
 
 from domain.entities import Book, User
+from domain.export import BookExporter
 from domain.repositories import UserRepository, BookRepository
 
 
@@ -28,8 +29,9 @@ class AuthDomain:
 
 
 class BookDomain:
-    def __init__(self, book_repository: BookRepository):
+    def __init__(self, book_repository: BookRepository, book_exporter: BookExporter):
         self.book_repository = book_repository
+        self.books_exporter = book_exporter
 
     def get_books(self) -> list[Book]:
         return self.book_repository.find_all()
@@ -47,3 +49,6 @@ class BookDomain:
 
     def delete_book(self, isbn: str):
         self.book_repository.delete_by_isbn(isbn)
+
+    def export_books(self, destination: str):
+        self.books_exporter.export_books(destination)

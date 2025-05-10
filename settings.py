@@ -5,3 +5,4 @@ DB_DIR = f"{ROOT_DIR}/db"
 APP_NAME = "Library"
 SQLITE_FILENAME = f"{DB_DIR}/library.db"
 INSERT_TESTDATA = False
+EXPORT_DESTINATION = "exports"
