@@ -17,8 +17,8 @@ class App:
     user_repository: UserRepository
     book_repository: BookRepository
     book_exporter: BookExporter
-    auth_service: AuthDomain
-    book_service: BookDomain
+    auth_domain: AuthDomain
+    book_domain: BookDomain
     view: View
 
     def __init__(self):
@@ -26,9 +26,9 @@ class App:
         self.user_repository = SqlUserRepository(self.data_storage)
         self.book_repository = SqlBookRepository(self.data_storage)
         self.book_exporter = CsvBookExporter(self.book_repository)
-        self.auth_service = AuthDomain(self.user_repository)
-        self.book_service = BookDomain(self.book_repository, self.book_exporter)
-        self.view = CommandLineInterfaceView(self.auth_service, self.book_service)
+        self.auth_domain = AuthDomain(self.user_repository)
+        self.book_domain = BookDomain(self.book_repository, self.book_exporter)
+        self.view = CommandLineInterfaceView(self.auth_domain, self.book_domain)
 
     def run(self):
         try:
