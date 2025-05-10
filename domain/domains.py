@@ -1,11 +1,11 @@
 import hashlib
 from typing import Optional
 
-from entities import Book, User
-from repositories import BookRepository, UserRepository
+from domain.entities import Book, User
+from domain.repositories import UserRepository, BookRepository
 
 
-class AuthService:
+class AuthDomain:
     def __init__(self, user_repository: UserRepository):
         self.user_repository = user_repository
 
@@ -26,7 +26,8 @@ class AuthService:
     def get_user(self, email: str) -> Optional[User]:
         return self.user_repository.find_by_email(email)
 
-class BookService:
+
+class BookDomain:
     def __init__(self, book_repository: BookRepository):
         self.book_repository = book_repository
 

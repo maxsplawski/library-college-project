@@ -2,14 +2,15 @@ import sqlite3
 import time
 from typing import Tuple, List, Optional, Any, Union
 
+from domain.storage import DataStorage
 from settings import DB_DIR, INSERT_TESTDATA, APP_NAME
 
 
-class DB:
+class SqliteDataStorage(DataStorage):
     def __init__(self, sqlite_database: str):
         self.sqlite_database = sqlite_database
 
-    def initialize(self):
+    def initialize(self) -> None:
         start = time.time()
         print(f"Starting {APP_NAME}...")
 
@@ -25,7 +26,6 @@ class DB:
 
         end = time.time()
         print(f"Completed initialization in {end - start:.2f} seconds")
-
 
     def execute(
             self,

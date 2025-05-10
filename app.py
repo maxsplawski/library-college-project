@@ -1,33 +1,43 @@
 import sqlite3
 
-from cli import CLI
-from db import DB
-from repositories import UserRepository, BookRepository
-from services import BookService, AuthService
+from domain.domains import BookDomain, AuthDomain
+from domain.repositories import UserRepository, BookRepository
+from domain.storage import DataStorage
+from domain.view import View
+from infrastracture.repositories import SqlUserRepository, SqlBookRepository
+from infrastracture.storage import SqliteDataStorage
+from infrastracture.view import CommandLineInterfaceView
 from settings import SQLITE_FILENAME, APP_NAME
 
 
 class App:
+    data_storage: DataStorage
+    user_repository: UserRepository
+    book_repository: BookRepository
+    auth_service: AuthDomain
+    book_service: BookDomain
+    view: View
+
     def __init__(self):
-        self.db = DB(SQLITE_FILENAME)
-        self.user_repository = UserRepository(self.db)
-        self.book_repository = BookRepository(self.db)
-        self.auth_service = AuthService(self.user_repository)
-        self.book_service = BookService(self.book_repository)
-        self.cli = CLI(self.auth_service, self.book_service)
+        self.data_storage = SqliteDataStorage(SQLITE_FILENAME)
+        self.user_repository = SqlUserRepository(self.data_storage)
+        self.book_repository = SqlBookRepository(self.data_storage)
+        self.auth_service = AuthDomain(self.user_repository)
+        self.book_service = BookDomain(self.book_repository)
+        self.view = CommandLineInterfaceView(self.auth_service, self.book_service)
 
     def run(self):
         try:
-            self.db.initialize()
+            self.data_storage.initialize()
             print(f"Welcome back to {APP_NAME}!")
             authenticated = False
             while not authenticated:
-                authenticated = self.cli.authenticate()
+                authenticated = self.view.authenticate()
             while True:
                 print(f"\n--- {APP_NAME} ---")
-                choice = self.cli.get_choice()
-                self.cli.route_command(choice)
-        except sqlite3.Error as sqlite_error:
+                choice = self.view.get_command()
+                self.view.route_command(choice)
+        except sqlite3.Error as sqlite_error:  # maybe delete
             print(f"SQLite error: {sqlite_error}")
         except IOError as io_error:
             print(f"IO error: {io_error}")

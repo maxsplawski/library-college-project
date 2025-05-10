@@ -1,14 +1,15 @@
 import getpass
 import sys
 
-from entities import Book
-from services import AuthService, BookService
+from domain.domains import AuthDomain, BookDomain
+from domain.entities import Book
+from domain.view import View
 
 
-class CLI:
-    def __init__(self, auth_service: AuthService, book_service: BookService):
-        self.auth_service = auth_service
-        self.book_service = book_service
+class CommandLineInterfaceView(View):
+    def __init__(self, auth_domain: AuthDomain, book_domain: BookDomain):
+        self.auth_domain = auth_domain
+        self.book_domain = book_domain
 
     def authenticate(self) -> bool:
         print("1. Login")
@@ -17,7 +18,7 @@ class CLI:
         if auth_method == "1":
             return self.attempt_login()
         elif auth_method == "2":
-            return self.attempt_sign_up()
+            return self.attempt_registration()
         else:
             print("Invalid choice")
             return False
@@ -26,7 +27,7 @@ class CLI:
         while True:
             email = input("Email: ")
             password = getpass.getpass("Password: ")
-            success = self.auth_service.login(email, password)
+            success = self.auth_domain.login(email, password)
             if success:
                 print("Logged in")
                 return True
@@ -34,14 +35,14 @@ class CLI:
                 print("Invalid credentials, please try again")
                 return False
 
-    def attempt_sign_up(self) -> bool:
+    def attempt_registration(self) -> bool:
         while True:
-            email = input("Email: ") # validate
-            user = self.auth_service.get_user(email)
+            email = input("Email: ")  # validate
+            user = self.auth_domain.get_user(email)
             password = getpass.getpass("Password: ")
             password_confirmation = getpass.getpass("Confirm password: ")
             if password == password_confirmation and user is None:
-                self.auth_service.register(email, password)
+                self.auth_domain.register(email, password)
                 print("Registered")
                 return True
             elif user:
@@ -49,7 +50,7 @@ class CLI:
             else:
                 print("Passwords do not match")
 
-    def get_choice(self) -> str:
+    def get_command(self) -> str:
         print("1. Show all books")
         print("2. Show a book")
         print("3. Add a book")
@@ -59,46 +60,46 @@ class CLI:
         choice = input("Enter your choice (1-6): ")
         return choice
 
-    def route_command(self, choice: str):
-        if choice == "1":
-            books = self.book_service.get_books()
+    def route_command(self, command: str) -> None:
+        if command == "1":
+            books = self.book_domain.get_books()
             print("All books currently in the library:")
             for book in books:
                 print(book)
-        elif choice == "2":
+        elif command == "2":
             isbn = input("Provide the book's ISBN: ")
-            book = self.book_service.get_book(isbn)
+            book = self.book_domain.get_book(isbn)
             if book:
                 print(book)
             else:
                 print("No book found")
-        elif choice == "3":
+        elif command == "3":
             isbn = input("ISBN: ")
             author = input("Author: ")
             title = input("Title: ")
             pages = int(input("Pages: "))
-            book = self.book_service.add_book(Book(None, isbn, author, title, pages))
+            book = self.book_domain.add_book(Book(None, isbn, author, title, pages))
             print(f"Added {book}")
-        elif choice == "4":
+        elif command == "4":
             isbn = input("Provide the book's ISBN: ")
-            book_to_update = self.book_service.get_book(isbn)
+            book_to_update = self.book_domain.get_book(isbn)
             if book_to_update is None:
                 print("No book found")
                 return
             book_to_update.author = input("Author: ")
             book_to_update.title = input("Title: ")
             book_to_update.pages = int(input("Pages: "))
-            book = self.book_service.update_book(book_to_update)
+            book = self.book_domain.update_book(book_to_update)
             print(f"Updated {book}")
-        elif choice == "5":
+        elif command == "5":
             isbn = input("Provide the book's ISBN: ")
-            book_to_delete = self.book_service.get_book(isbn)
+            book_to_delete = self.book_domain.get_book(isbn)
             if book_to_delete is None:
                 print("No book found")
                 return
-            self.book_service.delete_book(isbn)
+            self.book_domain.delete_book(isbn)
             print(f"Deleted a book with ISBN: {isbn}")
-        elif choice == "6":
+        elif command == "6":
             print("Goodbye!")
             sys.exit(0)
         else:

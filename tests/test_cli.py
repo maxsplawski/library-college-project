@@ -1,15 +1,15 @@
 import unittest
-from unittest.mock import Mock, patch, MagicMock, ANY
+from unittest.mock import Mock, patch, MagicMock
 
-from cli import CLI
-from entities import Book
+from domain.entities import Book
+from infrastracture.view import CommandLineInterfaceView
 
 
 class TestCLI(unittest.TestCase):
     def setUp(self):
         self.mock_auth_service = Mock()
         self.mock_book_service = Mock()
-        self.cli = CLI(self.mock_auth_service, self.mock_book_service)
+        self.cli = CommandLineInterfaceView(self.mock_auth_service, self.mock_book_service)
 
     @patch("builtins.input", return_value="user@example.com")
     @patch("getpass.getpass", return_value="password")
@@ -26,7 +26,8 @@ class TestCLI(unittest.TestCase):
     @patch("builtins.input", return_value="user@example.com")
     @patch("getpass.getpass", return_value="password")
     @patch("builtins.print")
-    def test_user_is_shown_error_message_on_login_failure(self,  mock_print: MagicMock, mock_getpass: MagicMock, mock_input: MagicMock):
+    def test_user_is_shown_error_message_on_login_failure(self, mock_print: MagicMock, mock_getpass: MagicMock,
+                                                          mock_input: MagicMock):
         self.mock_auth_service.login.return_value = False
 
         result = self.cli.attempt_login()
@@ -38,11 +39,11 @@ class TestCLI(unittest.TestCase):
     @patch("builtins.input", return_value="user@example.com")
     @patch("getpass.getpass", return_value="password")
     @patch("builtins.print")
-    def test_user_can_sign_up(self,  mock_print: MagicMock, mock_getpass: MagicMock, mock_input: MagicMock):
+    def test_user_can_sign_up(self, mock_print: MagicMock, mock_getpass: MagicMock, mock_input: MagicMock):
         self.mock_auth_service.get_user.return_value = None
         self.mock_auth_service.register.return_value = None
 
-        self.cli.attempt_sign_up()
+        self.cli.attempt_registration()
 
         self.mock_auth_service.get_user.assert_called_with("user@example.com")
         self.mock_auth_service.register.assert_called_with("user@example.com", "password")
@@ -51,11 +52,12 @@ class TestCLI(unittest.TestCase):
     @patch("builtins.input", side_effect=["user@example.com", "user@company.com"])
     @patch("getpass.getpass", side_effect=["password", "password", "password", "password"])
     @patch("builtins.print")
-    def test_user_is_shown_error_message_on_email_taken(self, mock_print: MagicMock, mock_getpass: MagicMock, mock_input: MagicMock):
+    def test_user_is_shown_error_message_on_email_taken(self, mock_print: MagicMock, mock_getpass: MagicMock,
+                                                        mock_input: MagicMock):
         self.mock_auth_service.get_user.side_effect = lambda email: MagicMock() if email == "user@example.com" else None
         self.mock_auth_service.register.return_value = None
 
-        self.cli.attempt_sign_up()
+        self.cli.attempt_registration()
 
         self.mock_auth_service.get_user.assert_called_with("user@company.com")
         mock_print.assert_any_call("Email is taken")
@@ -63,11 +65,12 @@ class TestCLI(unittest.TestCase):
     @patch("builtins.input", side_effect=["user@example.com", "user@example.com"])
     @patch("getpass.getpass", side_effect=["password", "pazzword", "password", "password"])
     @patch("builtins.print")
-    def test_user_is_shown_error_message_on_password_mismatch(self, mock_print: MagicMock, mock_getpass: MagicMock, mock_input: MagicMock):
+    def test_user_is_shown_error_message_on_password_mismatch(self, mock_print: MagicMock, mock_getpass: MagicMock,
+                                                              mock_input: MagicMock):
         self.mock_auth_service.get_user.return_value = None
         self.mock_auth_service.register.return_value = None
 
-        self.cli.attempt_sign_up()
+        self.cli.attempt_registration()
 
         self.mock_auth_service.get_user.assert_called_with("user@example.com")
         mock_print.assert_any_call("Passwords do not match")
@@ -100,7 +103,8 @@ class TestCLI(unittest.TestCase):
 
     @patch("builtins.input", return_value="1234")
     @patch("builtins.print")
-    def test_user_is_shown_error_message_when_book_not_found_on_get_book_attempt(self, mock_print: MagicMock, mock_input: MagicMock):
+    def test_user_is_shown_error_message_when_book_not_found_on_get_book_attempt(self, mock_print: MagicMock,
+                                                                                 mock_input: MagicMock):
         self.mock_book_service.get_book.return_value = None
 
         self.cli.route_command("2")
@@ -135,7 +139,8 @@ class TestCLI(unittest.TestCase):
 
     @patch("builtins.input", return_value="1234")
     @patch("builtins.print")
-    def test_user_is_shown_error_message_when_book_not_found_on_book_update_attempt(self, mock_print: MagicMock, mock_input: MagicMock):
+    def test_user_is_shown_error_message_when_book_not_found_on_book_update_attempt(self, mock_print: MagicMock,
+                                                                                    mock_input: MagicMock):
         self.mock_book_service.get_book.return_value = None
 
         self.cli.route_command("4")
@@ -154,7 +159,8 @@ class TestCLI(unittest.TestCase):
 
     @patch("builtins.input", return_value="1234")
     @patch("builtins.print")
-    def test_user_is_shown_error_message_when_book_not_found_on_book_delete_attempt(self, mock_print: MagicMock, mock_input: MagicMock):
+    def test_user_is_shown_error_message_when_book_not_found_on_book_delete_attempt(self, mock_print: MagicMock,
+                                                                                    mock_input: MagicMock):
         self.mock_book_service.get_book.return_value = None
 
         self.cli.route_command("5")
@@ -176,6 +182,7 @@ class TestCLI(unittest.TestCase):
         self.cli.route_command("invalid")
 
         mock_print.assert_any_call("Invalid choice")
+
 
 if __name__ == "__main__":
     unittest.main()
